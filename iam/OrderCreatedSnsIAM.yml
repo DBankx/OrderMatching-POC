@@ -1,0 +1,5 @@
+OrderCreatedSnsIAM:
+  Effect: Allow
+  Action:
+  - SNS:Publish
+  Resource: ${self:custom.OrderCreatedSns.arn}

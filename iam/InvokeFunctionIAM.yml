@@ -1,0 +1,6 @@
+InvokeFunctionIAM:
+  Effect: Allow
+  Action: 
+    - lambda:InvokeFunction
+    - lamdba:InvokeAsync
+  Resource: "*"

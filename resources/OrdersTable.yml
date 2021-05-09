@@ -1,0 +1,28 @@
+OrdersTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: OrdersTable-${self:provider.stage}
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      - AttributeName: createdAt
+        AttributeType: S
+      - AttributeName: ticker 
+        AttributeType: S
+      - AttributeName: orderRate 
+        AttributeType: S  
+    KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      - AttributeName: createdAt
+        KeyType: RANGE        
+    GlobalSecondaryIndexes:
+      - IndexName: ticker_orderRate
+        KeySchema:
+          - AttributeName: ticker
+            KeyType: HASH
+          - AttributeName: orderRate
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL      

@@ -1,0 +1,72 @@
+service: orders-service
+
+plugins:
+  - serverless-bundle
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: eu-west-1
+  memorySize: 256
+  stage: ${opt:stage, 'dev'}
+  environment:
+    ORDERS_TABLE_NAME: ${self:custom.OrdersTable.name}
+    ORDER_CREATED_TOPIC: ${self:custom.OrderCreatedSns.arn}
+  iam:
+    role:
+      statements:
+        - ${file(iam/OrdersTableIAM.yml):OrdersTableIAM} 
+        - ${file(iam/InvokeFunctionIAM.yml):InvokeFunctionIAM}
+        - ${file(iam/OrderCreatedSnsIAM.yml):OrderCreatedSnsIAM}
+  
+
+resources:
+  Resources:
+    OrdersTable: ${file(resources/OrdersTable.yml):OrdersTable}
+    OrderCreatedSns: ${file(resources/OrderCreatedSns.yml):OrderCreatedSns}  
+  
+functions:
+  createOrder:
+    handler: src/handlers/createOrder.handler
+    events:
+      - http:
+          method: POST
+          cors: true
+          path: /create-order
+  getOrderById:
+    handler: src/handlers/getOrderById.handler
+    events:
+      - http:
+          path: /order/{id}
+          method: GET
+          cors: true
+  deleteOrder:
+    handler: src/handlers/deleteOrder.handler
+    events:
+      - http:
+          path: /order/{id}
+          method: DELETE
+          cors: true
+  getOrdersByTicker:
+    handler: src/handlers/getOrdersByTicker.handler
+    events:
+      - http:
+          path: /orders
+          method: GET
+          cors: true
+  processOrderByInitialEntry:
+    handler: src/handlers/processOrderByInitialEntry.handler
+    events:
+      - sns:
+          arn: ${self:custom.OrderCreatedSns.arn}
+          topicName: ${self:custom.OrderCreatedSns.name}
+custom:
+  OrdersTable:
+    name: !Ref OrdersTable
+    arn: !GetAtt OrdersTable.Arn
+  processOrderByInitialEntry:
+    name: ${self:service}-${self:provider.stage}-processOrderByInitialEntry
+  OrderCreatedSns:
+    name: OrderCreatedSns-${self:provider.stage}
+    arn: !Ref OrderCreatedSns 

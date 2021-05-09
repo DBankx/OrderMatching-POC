@@ -1,0 +1,5 @@
+OrderCreatedSns:
+  Type: AWS::SNS::Topic
+  Properties:
+    DisplayName: 'Topic to fire upon the creation of orders'
+    TopicName: ${self:custom.OrderCreatedSns.name}

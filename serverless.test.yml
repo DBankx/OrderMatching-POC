@@ -1,0 +1,11 @@
+- name: checks if a query parameter is present in the url
+  endpoint: {function: getOrdersByTicker}
+  response:
+    status: 400
+- name: checks if currency capitack uses is passed in the url
+  endpoint:
+    method: GET
+    path: /orders?product=VES
+  response:
+    status: 400
+    body: 'Sorry we do not deal with this currency as of yet'    

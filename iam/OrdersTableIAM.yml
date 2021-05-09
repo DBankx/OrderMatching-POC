@@ -1,0 +1,13 @@
+OrdersTableIAM:
+  Effect: Allow
+  Action:
+    - dynamodb:PutItem
+    - dynamodb:GetItem
+    - dynamodb:DeleteItem
+    - dynamodb:Query
+  Resource:
+    - ${self:custom.OrdersTable.arn}
+    - !Join [
+        '/',
+        ['${self:custom.OrdersTable.arn}', 'index', 'ticker_orderRate'],
+      ]
